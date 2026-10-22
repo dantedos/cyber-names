@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberNames - لعبة الأذكياء السيبرانية</title>
+  <!-- Tailwind CSS لترتيب وتصميم عصري -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- مكتبة الأيقونات FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- ملف التصميم المخصص للسايبربانك ومنع النسخ -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 font-sans min-h-screen select-none relative overflow-x-hidden">
+
+  <!-- 🛡️ شاشة التغبيش والإنذار ضد الغش (Anti-Cheat Overlay) -->
+  <div id="anti-cheat-overlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-6 text-center border-4 border-red-600 animate-pulse">
+    <div class="bg-red-950/80 p-8 rounded-2xl max-w-lg border border-red-500 shadow-2xl shadow-red-900/50">
+      <i class="fa-solid fa-triangle-exclamation text-6xl text-red-500 mb-4"></i>
+      <h2 class="text-3xl font-black text-red-400 mb-2">تنبيه أمني خطير! 🚨</h2>
+      <p id="anti-cheat-msg" class="text-lg text-gray-200 mb-6 font-mono">تم رصد محاولة مغادرة للعبة أو فتح تطبيق خارجي (مثل واتساب)!</p>
+      <div class="bg-black/60 p-4 rounded-xl border border-red-800 text-red-300 text-sm font-mono">
+        النظام يراقبتك يا هكر.. ارجع للترمنال فوراً وإلا سيتم خصم نقاط من فريقك!
+      </div>
+      <button onclick="dismissAntiCheat()" class="mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition duration-200">
+        العودة للعمليات (تأكيد)
+      </button>
+    </div>
+  </div>
+
+  <!-- حاوية اللعبة الرئيسية -->
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+
+    <!-- شاشة تسجيل البروفايل (الخطوة الأولى) -->
+    <section id="view-profile" class="view-section flex flex-col items-center justify-center min-h-[80vh]">
+      <div class="bg-gray-900/90 border border-cyan-500/40 p-8 rounded-2xl shadow-2xl shadow-cyan-500/10 max-w-md w-full backdrop-blur-sm">
+        <div class="text-center mb-6">
+          <i class="fa-solid fa-user-secret text-5xl text-cyan-400 mb-3 animate-bounce"></i>
+          <h1 class="text-3xl font-black tracking-wider text-cyan-300">CYBER NAMES</h1>
+          <p class="text-sm text-gray-400 mt-1">أنشئ هويتك الرقمية وابدأ الاختراق الاستراتيجي</p>
+        </div>
+
+        <form id="profile-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-cyan-400 mb-2">اسم الهكر (Nickname):</label>
+            <input type="text" id="profile-name" required placeholder="أدخل اسمك المستعار..." 
+              class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-cyan-400 mb-2">الصورة الشخصية (اختياري - Base64):</label>
+            <div class="flex items-center space-x-4 space-x-reverse">
+              <div id="avatar-preview" class="w-16 h-16 rounded-full bg-gray-800 border-2 border-cyan-500/50 flex items-center justify-center overflow-hidden shrink-0">
+                <i class="fa-solid fa-user text-2xl text-gray-500"></i>
+              </div>
+              <input type="file" id="profile-avatar-file" accept="image/*" 
+                class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-cyan-950 file:text-cyan-300 hover:file:bg-cyan-900 cursor-pointer">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-600/30 transition duration-200">
+            الدخول إلى النظام <i class="fa-solid fa-arrow-left mr-2"></i>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- القائمة الرئيسية (إنشاء غرفة / انضمام / الأصدقاء) -->
+    <section id="view-menu" class="view-section hidden">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- لوحة التحكم السريعة -->
+        <div class="md:col-span-2 bg-gray-900/80 border border-cyan-500/30 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-gray-800 pb-4 mb-6">
+              <div class="flex items-center space-x-3 space-x-reverse">
+                <div id="menu-avatar-display" class="w-12 h-12 rounded-full bg-gray-800 border border-cyan-400 flex items-center justify-center overflow-hidden"></div>
+                <div>
+                  <h3 id="menu-username" class="font-bold text-lg text-white"></h3>
+                  <span class="text-xs text-green-400 flex items-center"><span class="w-2 h-2 rounded-full bg-green-500 inline-block ml-1 animate-ping"></span> متصل في الشبكة</span>
+                </div>
+              </div>
+              <span class="text-xs font-mono bg-cyan-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800">Secure Node</span>
+            </div>
+
+            <h2 class="text-2xl font-black text-white mb-4">اختر وضع العملية:</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <button onclick="showView('view-create-room')" class="p-5 bg-gradient-to-br from-cyan-900/50 to-blue-900/50 hover:from-cyan-800 hover:to-blue-800 border border-cyan-500/40 rounded-2xl text-right transition group">
+                <i class="fa-solid fa-network-wired text-3xl text-cyan-400 mb-3 group-hover:scale-110 transition-transform block"></i>
+                <h4 class="font-bold text-lg text-white">إنشاء غرفة جديدة</h4>
+                <p class="text-xs text-gray-400 mt-1">اضبط القاموس (لغاية 50 كلمة)، التايم، والباسورد.</p>
+              </button>
+
+              <button onclick="showView('view-join-room')" class="p-5 bg-gradient-to-br from-purple-900/50 to-indigo-900/50 hover:from-purple-800 hover:to-indigo-800 border border-purple-500/40 rounded-2xl text-right transition group">
+                <i class="fa-solid fa-right-to-bracket text-3xl text-purple-400 mb-3 group-hover:scale-110 transition-transform block"></i>
+                <h4 class="font-bold text-lg text-white">انضمام لغرفة</h4>
+                <p class="text-xs text-gray-400 mt-1">أدخل كود الغرفة وكلمة السر للاتصال بالشلة.</p>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- لوحة الأصدقاء والدعوات المباشرة -->
+        <div class="bg-gray-900/80 border border-cyan-500/30 p-6 rounded-2xl shadow-xl flex flex-col">
+          <h3 class="font-bold text-lg text-cyan-300 mb-4 flex items-center justify-between">
+            <span><i class="fa-solid fa-users-viewfinder ml-2"></i> الأصدقاء والشبكة</span>
+            <span class="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded">0</span>
+          </h3>
+
+          <div class="mb-4">
+            <div class="flex space-x-2 space-x-reverse">
+              <input type="text" id="friend-name-input" placeholder="اسم الصديق للإضافة..." 
+                class="w-full bg-black/60 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              <button onclick="addFriend()" class="px-4 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg text-sm font-bold transition">إضافة</button>
+            </div>
+          </div>
+
+          <div id="friends-list" class="space-y-3 flex-1 overflow-y-auto max-h-[250px] pr-1">
+            <div class="text-center text-gray-500 text-sm py-8">لا توجد أصدقاء مضافين حالياً.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- شاشة إنشاء الغرفة -->
+    <section id="view-create-room" class="view-section hidden max-w-xl mx-auto">
+      <div class="bg-gray-900/90 border border-cyan-500/40 p-8 rounded-2xl shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-black text-cyan-300"><i class="fa-solid fa-sliders ml-2"></i> إعدادات الغرفة الجديدة</h2>
+          <button onclick="showView('view-menu')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <form id="create-room-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-cyan-400 mb-2">نوع القاموس:</label>
+            <select id="room-dictionary" class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400">
+              <option value="cyber">القاموس السيبراني والتقني</option>
+              <option value="sudani">القاموس العام باللهجة السودانية</option>
+              <option value="engineering">قاموس هندسة الكهرباء</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-cyan-400 mb-2">عدد الكلمات في الشبكة (لغاية 50 كلمة):</label>
+            <input type="number" id="room-wordcount" min="10" max="50" value="25" 
+              class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400">
+            <span class="text-xs text-gray-400 mt-1 block">كل ما زاد العدد، كل ما زادت متعة وطول الجيم!</span>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-cyan-400 mb-2">الزمن المخصص لكل دور (بالثواني):</label>
+            <input type="number" id="room-timer" min="30" max="300" value="60" 
+              class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-cyan-400 mb-2">كلمة مرور الغرفة (اختياري):</label>
+            <input type="password" id="room-password" placeholder="اتركها فارغة لغرفة عامة..." 
+              class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+
+          <div class="flex space-x-4 space-x-reverse pt-2">
+            <button type="submit" class="flex-1 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg transition">إنشاء وبدء التشغيل</button>
+            <button type="button" onclick="showView('view-menu')" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-xl transition">إلغاء</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- شاشة الانضمام لغرفة -->
+    <section id="view-join-room" class="view-section hidden max-w-md mx-auto">
+      <div class="bg-gray-900/90 border border-purple-500/40 p-8 rounded-2xl shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-black text-purple-300"><i class="fa-solid fa-right-to-bracket ml-2"></i> الانضمام لغرفة</h2>
+          <button onclick="showView('view-menu')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <form id="join-room-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-purple-400 mb-2">كود الغرفة:</label>
+            <input type="text" id="join-code" required placeholder="مثال: AB12C" uppercase
+              class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white font-mono uppercase tracking-widest focus:outline-none focus:border-purple-400">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-purple-400 mb-2">كلمة مرور الغرفة (إن وجدت):</label>
+            <input type="password" id="join-password" placeholder="أدخل كلمة المرور..." 
+              class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-400">
+          </div>
+
+          <div class="flex space-x-4 space-x-reverse pt-2">
+            <button type="submit" class="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg transition">اتصال بالشبكة</button>
+            <button type="button" onclick="showView('view-menu')" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-xl transition">رجوع</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- شاشة اللوبي واللعب العام (غرفة العمليات) -->
+    <section id="view-lobby" class="view-section hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- يسار: تفاصيل الغرفة وقائمة اللاعبين -->
+        <div class="lg:col-span-1 bg-gray-900/80 border border-cyan-500/30 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
+              <h3 class="font-bold text-cyan-300"><i class="fa-solid fa-terminal ml-1"></i> غرفة العمليات</h3>
+              <span id="display-room-code" class="bg-cyan-950 text-cyan-300 px-3 py-1 rounded font-mono text-sm border border-cyan-800">-----</span>
+            </div>
+
+            <div class="mb-4">
+              <h4 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">اللاعبون المتصلون (<span id="player-count">0</span>):</h4>
+              <ul id="players-list" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                <!-- قائمة اللاعبين تظهر هنا الديناميكياً -->
+              </ul>
+            </div>
+          </div>
+
+          <button onclick="leaveRoom()" class="w-full py-2 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 rounded-xl text-sm font-bold transition">
+            مغادرة الغرفة
+          </button>
+        </div>
+
+        <!-- يمين: شبكة الكروت (Board) وشات الصوت والكتابة -->
+        <div class="lg:col-span-3 space-y-6">
+          
+          <!-- شبكة الكروت -->
+          <div class="bg-gray-900/80 border border-cyan-500/30 p-6 rounded-2xl shadow-xl min-h-[350px] flex flex-col items-center justify-center">
+            <div id="game-board" class="grid grid-cols-5 gap-3 w-full">
+              <!-- الكروت يتم توليدها ديناميكياً بناءً على الـ 50 كلمة -->
+            </div>
+            <div id="waiting-host-msg" class="text-center py-12 text-gray-400">
+              <i class="fa-solid fa-satellite-dish text-4xl text-cyan-400 mb-3 animate-pulse"></i>
+              <p class="text-lg font-bold">بانتظار اكتمال الشلة وبدء العملية...</p>
+            </div>
+          </div>
+
+          <!-- الشات العام (نصي + فويس نوت Base64 - بدون شات خاص لمنع الغش) -->
+          <div class="bg-gray-900/80 border border-cyan-500/30 p-5 rounded-2xl shadow-xl flex flex-col h-[300px]">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <h4 class="font-bold text-cyan-300 text-sm"><i class="fa-solid fa-comments ml-1"></i> الشات العام (مراقب أمنياً ضد الغش)</h4>
+              <span class="text-xs text-gray-500">الصوت والكتابة للجميع</span>
+            </div>
+
+            <!-- سجل الرسائل -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-3 text-sm">
+              <div class="text-center text-gray-500 text-xs py-2">[النظام]: أهلاً بكم في شات العمليات. ممنوع الغش أو مغادرة الشاشة!</div>
+            </div>
+
+            <!-- أدوات الإرسال (كتابة + تسجيل صوتي Base64) -->
+            <div class="flex items-center space-x-2 space-x-reverse">
+              <input type="text" id="chat-input" placeholder="اكتب رسالة للجميع..." 
+                class="flex-1 bg-black/60 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-400">
+              
+              <button id="voice-record-btn" onclick="toggleVoiceRecording()" title="تسجيل فويس نوت" class="p-2.5 bg-gray-800 hover:bg-gray-700 text-cyan-400 rounded-xl border border-gray-700 transition">
+                <i class="fa-solid fa-microphone text-lg" id="mic-icon"></i>
+              </button>
+
+              <button onclick="sendTextMessage()" class="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-bold transition">
+                إرسال
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- سكربت Socket.io والمنطق البرمجي -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

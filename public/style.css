@@ -1,0 +1,80 @@
+/* ==========================================================
+   CyberNames - Cyberpunk Theme & Anti-Cheat Styles
+   ========================================================== */
+
+/* منع تحديد النصوص، النسخ، والتعامل العشوائي نهائياً لمكافحة الغش */
+body {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE10+/Edge */
+  user-select: none;         /* Standard */
+  background-color: #030712; /* تدرج داكن جداً (Gray 950) */
+  color: #f3f4f6;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* منع السحب والإفلات للصور والعناصر */
+img, a {
+  -webkit-user-drag: none;
+}
+
+/* تخصيص أشرطة التمرير (Scrollbar) لتكون بلون نيون سايبربانك */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(3, 7, 18, 0.9);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.4); /* Cyan glow */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.8);
+}
+
+/* تأثيرات النيون والإضاءات الخاصة باللوحات */
+.neon-border-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+}
+
+.neon-border-purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+}
+
+/* طبقة التغبيش الإضافية عند محاولة الغش */
+.blur-shield {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* تصميم كروت شبكة الكلمات في اللعبة */
+.game-card {
+  aspect-ratio: 1 / 1;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.game-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.35);
+}
+
+/* خطوط الترمنال للمعلومات واللوغ */
+.terminal-font {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* تأثير النبض للخلفيات الأمنية */
+@keyframes cyberPulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.6; }
+}
+
+.cyber-pulse {
+  animation: cyberPulse 3s infinite ease-in-out;
+}
