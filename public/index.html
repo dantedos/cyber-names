@@ -20,7 +20,7 @@
       <h2 class="text-3xl font-black text-red-400 mb-2">تنبيه أمني خطير! 🚨</h2>
       <p id="anti-cheat-msg" class="text-lg text-gray-200 mb-6 font-mono">تم رصد محاولة مغادرة للعبة أو فتح تطبيق خارجي (مثل واتساب)!</p>
       <div class="bg-black/60 p-4 rounded-xl border border-red-800 text-red-300 text-sm font-mono">
-        النظام يراقبتك يا هكر.. ارجع للترمنال فوراً وإلا سيتم خصم نقاط من فريقك!
+        النظام يراقبك يا هكر.. ارجع للترمنال فوراً وإلا سيتم خصم نقاط من فريقك!
       </div>
       <button onclick="dismissAntiCheat()" class="mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition duration-200">
         العودة للعمليات (تأكيد)
@@ -31,30 +31,36 @@
   <!-- حاوية اللعبة الرئيسية -->
   <div class="container mx-auto px-4 py-8 max-w-6xl">
 
-    <!-- شاشة تسجيل البروفايل (الخطوة الأولى) -->
+    <!-- شاشة تسجيل البروفايل الثابت (اسم + كلمة مرور) -->
     <section id="view-profile" class="view-section flex flex-col items-center justify-center min-h-[80vh]">
       <div class="bg-gray-900/90 border border-cyan-500/40 p-8 rounded-2xl shadow-2xl shadow-cyan-500/10 max-w-md w-full backdrop-blur-sm">
         <div class="text-center mb-6">
           <i class="fa-solid fa-user-secret text-5xl text-cyan-400 mb-3 animate-bounce"></i>
           <h1 class="text-3xl font-black tracking-wider text-cyan-300">CYBER NAMES</h1>
-          <p class="text-sm text-gray-400 mt-1">أنشئ هويتك الرقمية وابدأ الاختراق الاستراتيجي</p>
+          <p class="text-sm text-gray-400 mt-1">أنشئ حسابك الثابت وابدأ الاختراق الاستراتيجي</p>
         </div>
 
-        <form id="profile-form" class="space-y-5">
+        <form id="profile-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-cyan-400 mb-2">اسم الهكر (Nickname):</label>
+            <label class="block text-sm font-medium text-cyan-400 mb-1">اسم الهكر (Username):</label>
             <input type="text" id="profile-name" required placeholder="أدخل اسمك المستعار..." 
               class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition">
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-cyan-400 mb-2">الصورة الشخصية (اختياري - Base64):</label>
+            <label class="block text-sm font-medium text-cyan-400 mb-1">كلمة المرور (Password):</label>
+            <input type="password" id="profile-pass" required placeholder="كلمة السر لحفظ حسابك..." 
+              class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-cyan-400 mb-1">الصورة الشخصية (اختياري - Base64):</label>
             <div class="flex items-center space-x-4 space-x-reverse">
-              <div id="avatar-preview" class="w-16 h-16 rounded-full bg-gray-800 border-2 border-cyan-500/50 flex items-center justify-center overflow-hidden shrink-0">
-                <i class="fa-solid fa-user text-2xl text-gray-500"></i>
+              <div id="avatar-preview" class="w-14 h-14 rounded-full bg-gray-800 border-2 border-cyan-500/50 flex items-center justify-center overflow-hidden shrink-0">
+                <i class="fa-solid fa-user text-xl text-gray-500"></i>
               </div>
               <input type="file" id="profile-avatar-file" accept="image/*" 
-                class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-cyan-950 file:text-cyan-300 hover:file:bg-cyan-900 cursor-pointer">
+                class="w-full text-xs text-gray-400 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-950 file:text-cyan-300 hover:file:bg-cyan-900 cursor-pointer">
             </div>
           </div>
 
@@ -65,7 +71,7 @@
       </div>
     </section>
 
-    <!-- القائمة الرئيسية (إنشاء غرفة / انضمام / الأصدقاء) -->
+    <!-- القائمة الرئيسية (إنشاء غرفة / انضمام / الأصدقاء المتصلون حقيقةً) -->
     <section id="view-menu" class="view-section hidden">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
@@ -100,23 +106,13 @@
           </div>
         </div>
 
-        <!-- لوحة الأصدقاء والدعوات المباشرة -->
+        <!-- لوحة الأصدقاء الحقيقيين المتصلين -->
         <div class="bg-gray-900/80 border border-cyan-500/30 p-6 rounded-2xl shadow-xl flex flex-col">
           <h3 class="font-bold text-lg text-cyan-300 mb-4 flex items-center justify-between">
-            <span><i class="fa-solid fa-users-viewfinder ml-2"></i> الأصدقاء والشبكة</span>
-            <span class="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded">0</span>
+            <span><i class="fa-solid fa-users ml-2"></i> الأصدقاء المتصلون</span>
           </h3>
-
-          <div class="mb-4">
-            <div class="flex space-x-2 space-x-reverse">
-              <input type="text" id="friend-name-input" placeholder="اسم الصديق للإضافة..." 
-                class="w-full bg-black/60 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
-              <button onclick="addFriend()" class="px-4 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg text-sm font-bold transition">إضافة</button>
-            </div>
-          </div>
-
           <div id="friends-list" class="space-y-3 flex-1 overflow-y-auto max-h-[250px] pr-1">
-            <div class="text-center text-gray-500 text-sm py-8">لا توجد أصدقاء مضافين حالياً.</div>
+            <div class="text-center text-gray-500 text-xs py-8">انضم لغرفة لتظهر قائمة أصدقائك المتصلين.</div>
           </div>
         </div>
 
@@ -145,7 +141,6 @@
             <label class="block text-sm font-medium text-cyan-400 mb-2">عدد الكلمات في الشبكة (لغاية 50 كلمة):</label>
             <input type="number" id="room-wordcount" min="10" max="50" value="25" 
               class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400">
-            <span class="text-xs text-gray-400 mt-1 block">كل ما زاد العدد، كل ما زادت متعة وطول الجيم!</span>
           </div>
 
           <div>
@@ -161,7 +156,7 @@
           </div>
 
           <div class="flex space-x-4 space-x-reverse pt-2">
-            <button type="submit" class="flex-1 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg transition">إنشاء وبدء التشغيل</button>
+            <button type="submit" class="flex-1 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg transition">إنشاء الغرفة</button>
             <button type="button" onclick="showView('view-menu')" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-xl transition">إلغاء</button>
           </div>
         </form>
@@ -179,7 +174,7 @@
         <form id="join-room-form" class="space-y-5">
           <div>
             <label class="block text-sm font-medium text-purple-400 mb-2">كود الغرفة:</label>
-            <input type="text" id="join-code" required placeholder="مثال: AB12C" uppercase
+            <input type="text" id="join-code" required placeholder="مثال: AB12C" 
               class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-3 text-white font-mono uppercase tracking-widest focus:outline-none focus:border-purple-400">
           </div>
 
@@ -197,75 +192,118 @@
       </div>
     </section>
 
-    <!-- شاشة اللوبي واللعب العام (غرفة العمليات) -->
-    <section id="view-lobby" class="view-section hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- شاشة اللوبي وغرفة العمليات (نظام الفرق Codenames والأدوار) -->
+    <section id="view-lobby" class="view-section hidden space-y-6">
+      
+      <!-- شريط معلومات الغرفة -->
+      <div class="flex items-center justify-between bg-gray-900/80 border border-cyan-500/30 p-4 rounded-2xl">
+        <div>
+          <h3 class="font-bold text-cyan-300">غرفة العمليات الاستراتيجية (Codenames)</h3>
+          <span class="text-xs text-gray-400">كود الغرفة: <span id="display-room-code" class="text-cyan-400 font-mono font-bold">-----</span></span>
+        </div>
+        <button onclick="leaveRoom()" class="px-4 py-2 bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 rounded-xl text-xs font-bold transition">مغادرة الغرفة</button>
+      </div>
+
+      <!-- منطقة اختيار الفرق والأدوار (فريق أحمر وفريق أزرق فوق وتحت) -->
+      <div id="team-selection-area" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        <!-- يسار: تفاصيل الغرفة وقائمة اللاعبين -->
-        <div class="lg:col-span-1 bg-gray-900/80 border border-cyan-500/30 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
-              <h3 class="font-bold text-cyan-300"><i class="fa-solid fa-terminal ml-1"></i> غرفة العمليات</h3>
-              <span id="display-room-code" class="bg-cyan-950 text-cyan-300 px-3 py-1 rounded font-mono text-sm border border-cyan-800">-----</span>
-            </div>
-
-            <div class="mb-4">
-              <h4 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">اللاعبون المتصلون (<span id="player-count">0</span>):</h4>
-              <ul id="players-list" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                <!-- قائمة اللاعبين تظهر هنا الديناميكياً -->
-              </ul>
-            </div>
+        <!-- الفريق الأحمر (Red Team) -->
+        <div class="bg-red-950/30 border border-red-600/40 p-5 rounded-2xl space-y-4">
+          <h4 class="font-bold text-red-400 text-lg flex items-center justify-between">
+            <span>🔴 الفريق الأحمر (Red Team)</span>
+            <span id="red-count" class="text-xs bg-red-900 px-2 py-0.5 rounded text-red-200">0 لاعبين</span>
+          </h4>
+          <div class="space-y-1 bg-black/40 p-3 rounded-xl border border-red-900/50">
+            <p class="text-xs text-gray-300 font-bold">قائد الفريق (Spymaster): <span id="red-spy" class="text-yellow-400 font-mono">غير مسمى</span></p>
+            <button onclick="joinTeamRole('red', 'spymaster')" class="w-full mt-2 py-1.5 bg-red-800 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">تولّي قيادة الفريق الأحمر</button>
           </div>
-
-          <button onclick="leaveRoom()" class="w-full py-2 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 rounded-xl text-sm font-bold transition">
-            مغادرة الغرفة
-          </button>
+          <div class="space-y-2">
+            <p class="text-xs text-gray-300 font-bold">اللاعبون الميدانيون (Operatives):</p>
+            <ul id="red-players-list" class="space-y-1 text-xs text-gray-300 bg-black/40 p-3 rounded-xl min-h-[50px] border border-gray-800"></ul>
+            <button onclick="joinTeamRole('red', 'operative')" class="w-full py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded-lg transition">الانضمام كلاعب ميداني أحمر</button>
+          </div>
         </div>
 
-        <!-- يمين: شبكة الكروت (Board) وشات الصوت والكتابة -->
-        <div class="lg:col-span-3 space-y-6">
-          
-          <!-- شبكة الكروت -->
-          <div class="bg-gray-900/80 border border-cyan-500/30 p-6 rounded-2xl shadow-xl min-h-[350px] flex flex-col items-center justify-center">
-            <div id="game-board" class="grid grid-cols-5 gap-3 w-full">
-              <!-- الكروت يتم توليدها ديناميكياً بناءً على الـ 50 كلمة -->
-            </div>
-            <div id="waiting-host-msg" class="text-center py-12 text-gray-400">
-              <i class="fa-solid fa-satellite-dish text-4xl text-cyan-400 mb-3 animate-pulse"></i>
-              <p class="text-lg font-bold">بانتظار اكتمال الشلة وبدء العملية...</p>
-            </div>
+        <!-- الفريق الأزرق (Blue Team) -->
+        <div class="bg-blue-950/30 border border-blue-600/40 p-5 rounded-2xl space-y-4">
+          <h4 class="font-bold text-blue-400 text-lg flex items-center justify-between">
+            <span>🔵 الفريق الأزرق (Blue Team)</span>
+            <span id="blue-count" class="text-xs bg-blue-900 px-2 py-0.5 rounded text-blue-200">0 لاعبين</span>
+          </h4>
+          <div class="space-y-1 bg-black/40 p-3 rounded-xl border border-blue-900/50">
+            <p class="text-xs text-gray-300 font-bold">قائد الفريق (Spymaster): <span id="blue-spy" class="text-yellow-400 font-mono">غير مسمى</span></p>
+            <button onclick="joinTeamRole('blue', 'spymaster')" class="w-full mt-2 py-1.5 bg-blue-800 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition">تولّي قيادة الفريق الأزرق</button>
           </div>
-
-          <!-- الشات العام (نصي + فويس نوت Base64 - بدون شات خاص لمنع الغش) -->
-          <div class="bg-gray-900/80 border border-cyan-500/30 p-5 rounded-2xl shadow-xl flex flex-col h-[300px]">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
-              <h4 class="font-bold text-cyan-300 text-sm"><i class="fa-solid fa-comments ml-1"></i> الشات العام (مراقب أمنياً ضد الغش)</h4>
-              <span class="text-xs text-gray-500">الصوت والكتابة للجميع</span>
-            </div>
-
-            <!-- سجل الرسائل -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-3 text-sm">
-              <div class="text-center text-gray-500 text-xs py-2">[النظام]: أهلاً بكم في شات العمليات. ممنوع الغش أو مغادرة الشاشة!</div>
-            </div>
-
-            <!-- أدوات الإرسال (كتابة + تسجيل صوتي Base64) -->
-            <div class="flex items-center space-x-2 space-x-reverse">
-              <input type="text" id="chat-input" placeholder="اكتب رسالة للجميع..." 
-                class="flex-1 bg-black/60 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-400">
-              
-              <button id="voice-record-btn" onclick="toggleVoiceRecording()" title="تسجيل فويس نوت" class="p-2.5 bg-gray-800 hover:bg-gray-700 text-cyan-400 rounded-xl border border-gray-700 transition">
-                <i class="fa-solid fa-microphone text-lg" id="mic-icon"></i>
-              </button>
-
-              <button onclick="sendTextMessage()" class="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-bold transition">
-                إرسال
-              </button>
-            </div>
+          <div class="space-y-2">
+            <p class="text-xs text-gray-300 font-bold">اللاعبون الميدانيون (Operatives):</p>
+            <ul id="blue-players-list" class="space-y-1 text-xs text-gray-300 bg-black/40 p-3 rounded-xl min-h-[50px] border border-gray-800"></ul>
+            <button onclick="joinTeamRole('blue', 'operative')" class="w-full py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded-lg transition">الانضمام كلاعب ميداني أزرق</button>
           </div>
-
         </div>
 
       </div>
+
+      <!-- زر بدء اللعبة (يتطلب لاعبين اثنين على الأقل في كل فريق) -->
+      <div id="start-game-container" class="text-center py-2">
+        <button onclick="tryStartGame()" class="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 text-white font-bold rounded-xl shadow-lg transition">
+          بدء العملية الاستراتيجية (ابدأ الجيم)
+        </button>
+        <p class="text-xs text-gray-400 mt-2">* لا تبدأ اللعبة إلا إذا اكتمل الفريقان (لاعبين اثنين على الأقل في كل فريق).</p>
+      </div>
+
+      <!-- منطقة اللعب الفعلية (تظهر عند بدء الجيم) -->
+      <div id="gameplay-area" class="hidden space-y-6">
+        
+        <!-- خانة إرسال التلميحات للقائد (Spymaster Clue Box) -->
+        <div id="spymaster-clue-box" class="hidden bg-gray-900 border border-yellow-500/50 p-4 rounded-2xl flex items-center space-x-3 space-x-reverse shadow-lg">
+          <input type="text" id="clue-word-input" placeholder="اكتب التلميح الاستراتيجي..." class="flex-1 bg-black/60 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
+          <select id="clue-count-select" class="bg-black/60 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500 font-mono">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+            <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          </select>
+          <button onclick="sendClueToTeam()" class="px-6 py-2.5 bg-yellow-600 hover:bg-yellow-500 text-black font-bold rounded-xl text-sm transition shadow">إرسال التلميح للفريق</button>
+        </div>
+
+        <!-- عرض التلميح الحالي للاعبين الميدانيين -->
+        <div id="active-clue-display" class="bg-cyan-950/60 border border-cyan-500/30 p-3 rounded-xl text-center text-cyan-300 font-mono text-sm hidden">
+          التلميح الحالي من القائد: <span id="current-clue-text" class="font-bold text-white text-base">---</span> (العدد: <span id="current-clue-count" class="font-bold text-white text-base">0</span>)
+        </div>
+
+        <!-- شبكة الكروت -->
+        <div class="bg-gray-900/80 border border-cyan-500/30 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center">
+          <div id="game-board" class="grid grid-cols-5 gap-3 w-full">
+            <!-- الكروت تتولد هنا ديناميكياً -->
+          </div>
+        </div>
+      </div>
+
+      <!-- الشات العام (مع خيار إخفاء وإظهار الشات) -->
+      <div class="bg-gray-900/80 border border-cyan-500/30 p-5 rounded-2xl shadow-xl flex flex-col">
+        <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+          <h4 class="font-bold text-cyan-300 text-sm"><i class="fa-solid fa-comments ml-1"></i> الشات العام (مراقب أمنياً ضد الغش)</h4>
+          <button onclick="toggleChatBox()" id="chat-toggle-btn" class="text-xs bg-gray-800 px-3 py-1 rounded text-cyan-400 hover:bg-gray-700 transition">إخفاء الشات</button>
+        </div>
+
+        <div id="chat-container" class="space-y-3">
+          <div id="chat-messages" class="h-[180px] overflow-y-auto space-y-2 pr-2 text-sm border border-gray-800 p-2 rounded-xl bg-black/40">
+            <div class="text-center text-gray-500 text-xs py-2">[النظام]: أهلاً بكم في شات العمليات.</div>
+          </div>
+
+          <div class="flex items-center space-x-2 space-x-reverse pt-2">
+            <input type="text" id="chat-input" placeholder="اكتب رسالة للجميع..." 
+              class="flex-1 bg-black/60 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-400">
+            
+            <button id="voice-record-btn" onclick="toggleVoiceRecording()" title="تسجيل فويس نوت" class="p-2.5 bg-gray-800 hover:bg-gray-700 text-cyan-400 rounded-xl border border-gray-700 transition">
+              <i class="fa-solid fa-microphone text-lg" id="mic-icon"></i>
+            </button>
+
+            <button onclick="sendTextMessage()" class="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-bold transition">
+              إرسال
+            </button>
+          </div>
+        </div>
+      </div>
+
     </section>
 
   </div>
