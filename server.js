@@ -9,6 +9,9 @@ const io = new Server(server);
 
 // تقديم الملفات الثابتة من مجلد public
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // القواميس المتعددة (سيبراني، عام سوداني، وهندسة كهربائية)
 const dictionaries = {
@@ -111,21 +114,22 @@ function generateBoard(dictionaryType, totalWords) {
 io.on('connection', (socket) => {
   console.log(`[CONNECTION] User connected: ${socket.id}`);
 
-  // تسجيل البروفايل (الاسم والصورة Base64)
+  // تسجيل البروفايل (الاسم، كلمة المرور، والصورة Base64)
   socket.on('register_profile', (profileData) => {
     socket.userProfile = {
       id: socket.id,
       name: profileData.name || 'Hacker_Anonymous',
+      password: profileData.password || '',
       avatar: profileData.avatar || null
     };
     socket.emit('profile_registered', socket.userProfile);
   });
 
-  // إنشاء غرفة جديدة مع اختيار القاموس
+  // إنشاء غرفة جديدة مع اختيار القاموس والفرق
   socket.on('create_room', (settings) => {
     const roomCode = generateRoomCode();
     const wordCount = parseInt(settings.wordCount) || 25;
-    const dictionaryType = settings.dictionaryType || 'cyber'; // cyber, sudani, engineering
+    const dictionaryType = settings.dictionaryType || 'cyber';
     
     rooms[roomCode] = {
       code: roomCode,
@@ -137,6 +141,10 @@ io.on('connection', (socket) => {
         timer: parseInt(settings.timer) || 60
       },
       players: [socket.userProfile],
+      teams: {
+        red: { spymaster: null, players: [socket.userProfile] },
+        blue: { spymaster: null, players: [] }
+      },
       board: generateBoard(dictionaryType, wordCount),
       gameState: 'waiting'
     };
@@ -145,7 +153,7 @@ io.on('connection', (socket) => {
     socket.roomCode = roomCode;
     
     socket.emit('room_created', { roomCode, room: rooms[roomCode] });
-    console.log(`[ROOM CREATED] Code: ${roomCode} by ${socket.userProfile.name} (Dict: ${dictionaryType}, Words: ${wordCount})`);
+    console.log(`[ROOM CREATED] Code: ${roomCode} by ${socket.userProfile.name}`);
   });
 
   // الانضمام إلى غرفة موجودة
@@ -167,10 +175,59 @@ io.on('connection', (socket) => {
     socket.join(roomCode);
     socket.roomCode = roomCode;
     room.players.push(socket.userProfile);
+    room.teams.blue.players.push(socket.userProfile); // انضمام افتراضي للفريق الأزرق
 
-    io.to(roomCode).emit('update_players', room.players);
+    io.to(roomCode).emit('update_room_state', room);
     socket.emit('room_joined', room);
     console.log(`[USER JOINED] ${socket.userProfile.name} joined room ${roomCode}`);
+  });
+
+  // تغيير الفريق أو الدور (قائد Spymaster أو لاعب ميداني Operative)
+  socket.on('change_team_role', ({ team, role }) => {
+    const room = rooms[socket.roomCode];
+    if (!room) return;
+
+    // إزالة اللاعب من جميع الفرق والأدوار السابقة
+    room.teams.red.players = room.teams.red.players.filter(p => p.id !== socket.id);
+    room.teams.blue.players = room.teams.blue.players.filter(p => p.id !== socket.id);
+    if (room.teams.red.spymaster === socket.id) room.teams.red.spymaster = null;
+    if (room.teams.blue.spymaster === socket.id) room.teams.blue.spymaster = null;
+
+    // إضافة اللاعب للفريق الجديد والدور الجديد
+    room.teams[team].players.push(socket.userProfile);
+    if (role === 'spymaster') {
+      room.teams[team].spymaster = socket.id;
+    }
+
+    io.to(socket.roomCode).emit('update_room_state', room);
+  });
+
+  // محاولة بدء اللعبة (التحقق من اكتمال الفريقين، أقل شيء لاعبين لكل فريق)
+  socket.on('start_game', () => {
+    const room = rooms[socket.roomCode];
+    if (!room) return;
+
+    const redCount = room.teams.red.players.length;
+    const blueCount = room.teams.blue.players.length;
+
+    if (redCount < 2 || blueCount < 2) {
+      return socket.emit('error_message', 'لا يمكن بدء اللعبة! يجب أن يحتوي كل فريق على لاعبين اثنين على الأقل.');
+    }
+
+    room.gameState = 'playing';
+    io.to(socket.roomCode).emit('game_started', room);
+  });
+
+  // إرسال تلميح من قائد الفريق (Spymaster)
+  socket.on('submit_clue', (data) => {
+    const room = rooms[socket.roomCode];
+    if (!room) return;
+
+    io.to(socket.roomCode).emit('receive_clue', {
+      sender: socket.userProfile.name,
+      clue: data.clue,
+      count: data.count
+    });
   });
 
   // الشات العام
@@ -193,8 +250,6 @@ io.on('connection', (socket) => {
     if (!socket.roomCode || !rooms[socket.roomCode]) return;
     
     const playerName = socket.userProfile ? socket.userProfile.name : 'مستخدم مجهول';
-    console.log(`[ANTI-CHEAT VIOLATION] ${playerName} violated rule: ${reason}`);
-    
     io.to(socket.roomCode).emit('anti_cheat_alert', {
       player: playerName,
       reason: reason,
@@ -208,12 +263,16 @@ io.on('connection', (socket) => {
     if (socket.roomCode && rooms[socket.roomCode]) {
       const room = rooms[socket.roomCode];
       room.players = room.players.filter(p => p.id !== socket.id);
+      room.teams.red.players = room.teams.red.players.filter(p => p.id !== socket.id);
+      room.teams.blue.players = room.teams.blue.players.filter(p => p.id !== socket.id);
+      if (room.teams.red.spymaster === socket.id) room.teams.red.spymaster = null;
+      if (room.teams.blue.spymaster === socket.id) room.teams.blue.spymaster = null;
       
       if (room.players.length === 0) {
         delete rooms[socket.roomCode];
         console.log(`[ROOM DELETED] Room ${socket.roomCode} is empty.`);
       } else {
-        io.to(roomCode).emit('update_players', room.players);
+        io.to(socket.roomCode).emit('update_room_state', room);
       }
     }
   });
