@@ -1,11 +1,25 @@
 /* ==========================================================
    CyberNames - Client Application Script (Socket.io & Anti-Cheat)
    ========================================================== */
+
+const socket = io(); // تعريف السوكيت أولاً وقبل كل شيء
+
+// حالة المستخدم والغرفة الحالية
+let currentUser = {
+  name: '',
+  avatar: null
+};
+let currentRoom = null;
+let base64Avatar = null;
+
+// متغيرات التسجيل الصوتي (Voice Notes Base64)
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
 /* ==========================================================
    CyberNames - Web Audio Synth Engine (Base64 Sound Effects)
    ========================================================== */
-
-// توليد مؤثرات صوتية سيبرانية مباشرة باستخدام Web Audio API (بدون ملفات خارجية)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let soundEnabled = true;
 
@@ -21,7 +35,6 @@ function playSound(type) {
   const now = audioCtx.currentTime;
 
   if (type === 'click') {
-    // صوت نقرة أزرار هيدروليكية
     osc.type = 'sine';
     osc.frequency.setValueAtTime(800, now);
     osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
@@ -29,20 +42,16 @@ function playSound(type) {
     gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
     osc.start(now);
     osc.stop(now + 0.05);
-
   } else if (type === 'success') {
-    // صوت نجاح اختيار كارت صحيح
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(523.25, now); // C5
-    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.1);
+    osc.frequency.setValueAtTime(783.99, now + 0.2);
     gain.gain.setValueAtTime(0.3, now);
     gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
     osc.start(now);
     osc.stop(now + 0.35);
-
   } else if (type === 'error') {
-    // صوت خطأ أو انقضاء الوقت
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(180, now);
     osc.frequency.linearRampToValueAtTime(90, now + 0.25);
@@ -50,9 +59,7 @@ function playSound(type) {
     gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
     osc.start(now);
     osc.stop(now + 0.25);
-
   } else if (type === 'siren') {
-    // صفارة إنذار الغش (Anti-Cheat Siren)
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(600, now);
     osc.frequency.linearRampToValueAtTime(900, now + 0.15);
@@ -61,9 +68,7 @@ function playSound(type) {
     gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
     osc.start(now);
     osc.stop(now + 0.4);
-
   } else if (type === 'ping') {
-    // صوت وصول رسالة أو فويس نوت
     osc.type = 'sine';
     osc.frequency.setValueAtTime(1050, now);
     gain.gain.setValueAtTime(0.25, now);
@@ -72,43 +77,6 @@ function playSound(type) {
     osc.stop(now + 0.08);
   }
 }
-
-// تشغيل صفارة الإنذار وتأثير هز الشاشة عند الغش
-socket.on('anti_cheat_alert', (data) => {
-  playSound('siren');
-  document.body.classList.add('animate-bounce');
-  setTimeout(() => document.body.classList.remove('animate-bounce'), 1000);
-  
-  antiCheatMsg.innerText = data.message;
-  antiCheatOverlay.classList.remove('hidden');
-
-  const chatMessages = document.getElementById('chat-messages');
-  const alertEl = document.createElement('div');
-  alertEl.className = 'bg-red-950/80 border border-red-800 p-3 rounded-xl text-red-300 font-mono text-xs animate-pulse';
-  alertEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation ml-1"></i> ${data.message}`;
-  chatMessages.appendChild(alertEl);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
-// تشغيل صوت التنبيه عند وصول فويس أو رسالة
-socket.on('receive_chat_message', (msg) => {
-  playSound('ping');
-  // باقي كود الشات الأصلي كما هو...
-});
-const socket = io();
-
-// حالة المستخدم والغرفة الحالية
-let currentUser = {
-  name: '',
-  avatar: null
-};
-let currentRoom = null;
-let base64Avatar = null;
-
-// متغيرات التسجيل الصوتي (Voice Notes Base64)
-let mediaRecorder = null;
-let audioChunks = [];
-let isRecording = false; // تم تصحيح الخطأ المطبعي هنا
 
 // --- 1. التنقل بين الشاشات (View Controller) ---
 function showView(viewId) {
@@ -131,7 +99,7 @@ if (avatarFileInput) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = function() {
-        base64Avatar = reader.result; // تخزين الصورة بصيغة Base64
+        base64Avatar = reader.result;
         avatarPreview.innerHTML = `<img src="${base64Avatar}" class="w-full h-full object-cover rounded-full">`;
       };
       reader.readAsDataURL(file);
@@ -148,18 +116,15 @@ document.getElementById('profile-form').addEventListener('submit', function(e) {
   currentUser.name = nameInput;
   currentUser.avatar = base64Avatar || getDefaultAvatarSVG(nameInput);
 
-  // إرسال بيانات البروفايل للسيرفر
   socket.emit('register_profile', currentUser);
 });
 
 socket.on('profile_registered', (profile) => {
   currentUser = profile;
-  // تحديث بيانات القائمة الرئيسية
   document.getElementById('menu-username').innerText = currentUser.name;
   const menuAvatarDisplay = document.getElementById('menu-avatar-display');
   menuAvatarDisplay.innerHTML = `<img src="${currentUser.avatar}" class="w-full h-full object-cover rounded-full">`;
   
-  // الانتقال للقائمة الرئيسية
   showView('view-menu');
 });
 
@@ -171,7 +136,7 @@ function getDefaultAvatarSVG(name) {
 document.getElementById('create-room-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const settings = {
-    dictionaryType: document.getElementById('room-dictionary').value, // cyber, sudani, engineering
+    dictionaryType: document.getElementById('room-dictionary').value,
     wordCount: parseInt(document.getElementById('room-wordcount').value) || 25,
     timer: parseInt(document.getElementById('room-timer').value) || 60,
     password: document.getElementById('room-password').value.trim()
@@ -204,7 +169,6 @@ socket.on('error_message', (msg) => {
   alert(msg);
 });
 
-// تهيئة اللوبي وغرفة العمليات
 function setupLobby(roomCode) {
   document.getElementById('display-room-code').innerText = roomCode;
   showView('view-lobby');
@@ -212,7 +176,6 @@ function setupLobby(roomCode) {
   renderGameBoard(currentRoom.board);
 }
 
-// تحديث قائمة اللاعبين
 socket.on('update_players', (players) => {
   if (currentRoom) currentRoom.players = players;
   renderPlayers(players);
@@ -236,7 +199,6 @@ function renderPlayers(players) {
   `).join('');
 }
 
-// رسم شبكة الكروت (حتى 50 كلمة)
 function renderGameBoard(board) {
   const boardEl = document.getElementById('game-board');
   const waitingMsg = document.getElementById('waiting-host-msg');
@@ -264,7 +226,7 @@ function leaveRoom() {
   window.location.reload();
 }
 
-// --- 4. الشات العام (نصي وفويس نوت Base64) ---
+// --- 4. الشات العام ---
 function sendTextMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
@@ -282,7 +244,6 @@ document.getElementById('chat-input').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') sendTextMessage();
 });
 
-// تسجيل الفويس نوت وتحويلها لـ Base64
 let isRecordingActive = false;
 
 async function toggleVoiceRecording() {
@@ -328,8 +289,8 @@ async function toggleVoiceRecording() {
   }
 }
 
-// استقبال رسائل الشات العام
 socket.on('receive_chat_message', (msg) => {
+  playSound('ping');
   const chatMessages = document.getElementById('chat-messages');
   
   let contentHtml = '';
@@ -369,7 +330,7 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
-// --- 5. نظام مكافحة الغش الصارم (Anti-Cheat Engine) ---
+// --- 5. نظام مكافحة الغش ---
 const antiCheatOverlay = document.getElementById('anti-cheat-overlay');
 const antiCheatMsg = document.getElementById('anti-cheat-msg');
 
@@ -386,12 +347,16 @@ window.addEventListener('blur', () => {
 });
 
 socket.on('anti_cheat_alert', (data) => {
+  playSound('siren');
+  document.body.classList.add('animate-bounce');
+  setTimeout(() => document.body.classList.remove('animate-bounce'), 1000);
+
   antiCheatMsg.innerText = data.message;
   antiCheatOverlay.classList.remove('hidden');
 
   const chatMessages = document.getElementById('chat-messages');
   const alertEl = document.createElement('div');
-  alertEl.className = 'bg-red-950/80 border border-red-800 p-3 rounded-xl text-red-300 font-mono text-xs';
+  alertEl.className = 'bg-red-950/80 border border-red-800 p-3 rounded-xl text-red-300 font-mono text-xs animate-pulse';
   alertEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation ml-1"></i> ${data.message}`;
   chatMessages.appendChild(alertEl);
   chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -401,7 +366,7 @@ function dismissAntiCheat() {
   antiCheatOverlay.classList.add('hidden');
 }
 
-// --- 6. نظام الأصدقاء (Friend System) ---
+// --- 6. نظام الأصدقاء ---
 function addFriend() {
   const input = document.getElementById('friend-name-input');
   const friendName = input.value.trim();
